@@ -7,6 +7,8 @@ import DownloadApp from "./components/DownloadApp/DownloadApp";
 function App() {
   return (
     <div>
+      <CssBaseline/>
+      <Outlet/>
       <DownloadApp />
       <Footer/>
     </div>

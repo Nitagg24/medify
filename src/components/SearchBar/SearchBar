@@ -1,0 +1,50 @@
+import { useState, useMemo } from "react";
+import { Stack, TextField, Button } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+
+export default function SearchBar({ dataList, onFilter }) {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Memoizing the search results for optimization
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return dataList;
+    }
+    return dataList.filter((data) =>
+      data["Hospital Name"]
+        .toLowerCase()
+        .includes(searchQuery.trim().toLowerCase())
+    );
+  }, [searchQuery, dataList]);
+
+  const handleSearchSubmit = (event) => {
+    event.preventDefault();
+    onFilter(searchResults);
+  };
+
+  return (
+    <form onSubmit={handleSearchSubmit}>
+      <Stack direction="row" spacing={2}>
+        <TextField
+          type="text"
+          label="Search By Hospital"
+          variant="outlined"
+          fullWidth
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          inputProps={{ maxLength: 100 }} // Enforcing a max length for the input
+        />
+        <Button
+          type="submit"
+          variant="contained"
+          size="large"
+          startIcon={<SearchIcon />}
+          sx={{ py: "15px", px: "2rem" }} // Adjusting padding for better alignment
+          disableElevation
+        >
+          Search
+        </Button>
+      </Stack>
+    </form>
+  );
+}
