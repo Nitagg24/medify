@@ -10,7 +10,6 @@ export default function HospitalSearchBar() {
   const [searchData, setSearchData] = useState({ state: "", city: "" });
   const navigate = useNavigate();
 
-  // Fetch available states
   useEffect(() => {
     const loadStates = async () => {
       try {
@@ -26,7 +25,6 @@ export default function HospitalSearchBar() {
     loadStates();
   }, []);
 
-  // Fetch cities based on the selected state
   useEffect(() => {
     if (searchData.state) {
       const loadCities = async () => {
@@ -40,15 +38,15 @@ export default function HospitalSearchBar() {
         }
       };
 
-      setAvailableCities([]);  // Clear cities on state change
-      setSearchData(current => ({ ...current, city: "" })); // Reset city field when state changes
+      setAvailableCities([]);
+      setSearchData((current) => ({ ...current, city: "" }));
       loadCities();
     }
   }, [searchData.state]);
 
   const handleFieldChange = (event) => {
     const { name, value } = event.target;
-    setSearchData(current => ({ ...current, [name]: value }));
+    setSearchData((current) => ({ ...current, [name]: value }));
   };
 
   const handleFormSubmit = (event) => {
@@ -59,11 +57,18 @@ export default function HospitalSearchBar() {
   };
 
   return (
-    <Box component="form" onSubmit={handleFormSubmit} sx={{
+    <Box
+      component="form"
+      onSubmit={handleFormSubmit}
+      sx={{
         display: "flex",
         gap: 4,
         justifyContent: "space-between",
-        flexDirection: { xs: "column", md: "row" }
+        flexDirection: { xs: "column", md: "row" },
+        width: "100%", 
+        maxWidth: "1200px", 
+        mx: "auto", 
+        mt: 4, 
       }}
     >
       <Select
@@ -73,14 +78,24 @@ export default function HospitalSearchBar() {
         value={searchData.state}
         onChange={handleFieldChange}
         startAdornment={
-          <InputAdornment position="start"><SearchIcon /></InputAdornment>
+          <InputAdornment position="start">
+            <SearchIcon />
+          </InputAdornment>
         }
         required
-        sx={{ minWidth: 200, width: "100%" }}
+        sx={{
+          minWidth: 200,
+          width: { xs: "100%", md: "300px" },
+          mx: { xs: 0, md: 1 },
+        }}
       >
-        <MenuItem disabled value="">State</MenuItem>
-        {availableStates.map(state => (
-          <MenuItem key={state} value={state}>{state}</MenuItem>
+        <MenuItem disabled value="">
+          State
+        </MenuItem>
+        {availableStates.map((state) => (
+          <MenuItem key={state} value={state}>
+            {state}
+          </MenuItem>
         ))}
       </Select>
 
@@ -91,14 +106,24 @@ export default function HospitalSearchBar() {
         value={searchData.city}
         onChange={handleFieldChange}
         startAdornment={
-          <InputAdornment position="start"><SearchIcon /></InputAdornment>
+          <InputAdornment position="start">
+            <SearchIcon />
+          </InputAdornment>
         }
         required
-        sx={{ minWidth: 200, width: "100%" }}
+        sx={{
+          minWidth: 200,
+          width: { xs: "100%", md: "300px" },
+          mx: { xs: 0, md: 1 },
+        }}
       >
-        <MenuItem disabled value="">City</MenuItem>
-        {availableCities.map(city => (
-          <MenuItem key={city} value={city}>{city}</MenuItem>
+        <MenuItem disabled value="">
+          City
+        </MenuItem>
+        {availableCities.map((city) => (
+          <MenuItem key={city} value={city}>
+            {city}
+          </MenuItem>
         ))}
       </Select>
 
@@ -107,7 +132,12 @@ export default function HospitalSearchBar() {
         variant="contained"
         size="large"
         startIcon={<SearchIcon />}
-        sx={{ py: "15px", px: "2rem" }}
+        sx={{
+          py: "15px",
+          px: "2rem",
+          width: { xs: "100%", md: "auto" },
+          mt: { xs: 2, md: 0 },
+        }}
         disableElevation
       >
         Search
