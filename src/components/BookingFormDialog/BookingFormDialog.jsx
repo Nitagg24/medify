@@ -1,82 +1,121 @@
-import { useState } from "react";
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+  Modal,
+  Typography,
+  Box,
   TextField,
   Button,
-  Typography,
   Stack,
 } from "@mui/material";
-import { format as formatDate } from "date-fns";
+import { useState } from "react";
+import { format } from "date-fns";
 
-const BookingFormDialog = ({ open, onClose, bookingDetails, onSuccess }) => {
-  const [email, setEmail] = useState("");
+export default function BookingFormDialog({
+  onClose,
+  isOpen,
+  bookingInfo,
+  displaySuccessMessage,
+}) {
+  const [userEmail, setUserEmail] = useState("");
 
-  const handleConfirm = (event) => {
+  const handleSubmitBooking = (event) => {
     event.preventDefault();
     logFirstVisitEvent();
 
-    const existingBookings = JSON.parse(localStorage.getItem("bookings") || "[]");
-    const updatedBookings = [
-      ...existingBookings,
-      { ...bookingDetails, bookingEmail: email },
-    ];
+    const storedBookings = localStorage.getItem("bookings") || "[]";
 
-    localStorage.setItem("bookings", JSON.stringify(updatedBookings));
-    onSuccess(true);
-    setEmail("");
-    onClose();
+    const previousBookings = JSON.parse(storedBookings);
+
+    localStorage.setItem(
+      "bookings",
+      JSON.stringify([
+        ...previousBookings,
+        { ...bookingInfo, bookingEmail: userEmail },
+      ])
+    );
+    displaySuccessMessage(true);
+    setUserEmail("");
+    onClose(false);
   };
 
   const logFirstVisitEvent = () => {
     window.dataLayer = window.dataLayer || [];
+
     window.dataLayer.push({
       event: "first_visit",
       eventDate: new Date().toISOString(),
     });
   };
 
-  const formatBookingDate = (date) =>
-    date ? formatDate(new Date(date), "E, d LLL") : null;
+  const formatBookingDate = (date) => {
+    if (date) {
+      const bookingDate = new Date(date);
+      return format(bookingDate, "E, d LLL");
+    }
+    return null;
+  };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
-      <DialogTitle>Confirm Your Booking</DialogTitle>
-      <DialogContent dividers>
-        <Typography>
-          Please enter your email to confirm the booking for{" "}
-          <strong>
-            {`${bookingDetails.bookingTime} on ${formatBookingDate(
-              bookingDetails.bookingDate
-            )}`}
-          </strong>
+    <Modal open={isOpen} onClose={() => onClose(false)}>
+      <Box
+        sx={{
+          width: "95%",
+          maxWidth: 600,
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          boxShadow: 24,
+          p: { xs: 3, md: 4 },
+          outline: 0,
+          bgcolor: "#fff",
+          borderRadius: 2,
+        }}
+      >
+        <Typography component="h3" variant="h3">
+          Confirm Your Booking
         </Typography>
-        <form onSubmit={handleConfirm}>
-          <Stack spacing={2} mt={2}>
+        <Typography fontSize={14} mb={3}>
+          <Box component="span">
+            Please enter your email to confirm the booking for{" "}
+          </Box>
+          <Box component="span" fontWeight={600}>
+            {`${bookingInfo.bookingTime} on ${formatBookingDate(
+              bookingInfo.bookingDate
+            )}`}
+          </Box>
+        </Typography>
+        <form onSubmit={handleSubmitBooking}>
+          <Stack alignItems="flex-start" spacing={2}>
             <TextField
               type="email"
-              label="Email Address"
+              label="Enter your email"
               variant="outlined"
               fullWidth
               required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={userEmail}
+              onChange={(e) => setUserEmail(e.target.value)}
             />
+            <Stack direction="row" spacing={1}>
+              <Button
+                type="submit"
+                variant="contained"
+                size="large"
+                disableElevation
+              >
+                Confirm
+              </Button>
+              <Button
+                variant="outlined"
+                size="large"
+                disableElevation
+                onClick={() => onClose(false)}
+              >
+                Cancel
+              </Button>
+            </Stack>
           </Stack>
         </form>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} variant="outlined">
-          Cancel
-        </Button>
-        <Button onClick={handleConfirm} variant="contained" type="submit">
-          Confirm
-        </Button>
-      </DialogActions>
-    </Dialog>
+      </Box>
+    </Modal>
   );
-};
-
-export default BookingFormDialog;
+}
